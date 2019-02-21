@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import fp from 'lodash/fp';
 import { SmartBuffer } from 'smart-buffer-64';
 import { Payload } from '../store/SmartContractStore';
-import { MessageType, MessageBox } from './MessageBox';
+import { MessageType, MessageBox, Message } from './MessageBox';
 
 export interface ContractFunctionProps {
   name: string;
@@ -68,18 +68,23 @@ const useParamsHook = (props: ContractFunctionProps) => {
     setParams(params.filter((_, i: number) => i !== index));
   };
 
-  return { message, setMessage, params, setParamValue, setParamType, addParam, removeParam };
+  const resetParamValues = () => {
+    setParams(params.map(param => ({ ...param, value: '' })));
+  };
+
+  return { message, setMessage, params, setParamValue, setParamType, addParam, removeParam, resetParamValues };
 }
 
 export const ContractFunction: React.SFC<ContractFunctionProps> = (props: ContractFunctionProps) => {
-  const { message, setMessage, params, setParamValue, setParamType, addParam, removeParam } = useParamsHook(props);
+  const { message, setMessage, params, setParamValue, setParamType, addParam, removeParam, resetParamValues } = useParamsHook(props);
+  const { onSend } = props;
 
   return (
     <Wrapper>
       <div className="flat-control-row">
-        {params.map((param: Param, index: number) => (
+        {params.map((param, index: number) => (
           <React.Fragment key={index}>
-            <input className="flat-control" type="text" onChange={setParamValue(index)} />
+            <input className="flat-control" type="text" value={param.value} onChange={setParamValue(index)} />
             <select className="flat-control" onChange={setParamType(index)}>
               {Object.keys(ParamTypes).map((key: string) =>
                 <option key={key} value={key}>{key}</option>)}
@@ -88,7 +93,10 @@ export const ContractFunction: React.SFC<ContractFunctionProps> = (props: Contra
           </React.Fragment>
         ))}
         <a className="flat-control flat-control--add" onClick={addParam}></a>
-        <button className="flat-control flat-control--submit" onClick={() => props.onSend()}>Send</button>
+        <button className="flat-control flat-control--submit"
+          onClick={onSubmitHandler(params, onSend, resetParamValues, setMessage)}>
+          Send
+        </button>
       </div>
       <MessageBox message={message} onExpire={() => setMessage(null)}></MessageBox>
     </Wrapper>
@@ -129,3 +137,19 @@ const processFunctionParams = (props: ContractFunctionProps, params: Param[]) =>
   });
 };
 
+const onSubmitHandler = (
+  params: Param[],
+  onSend: () => void,
+  resetParamValues: () => void,
+  setMessage: React.Dispatch<Message>
+) => () => {
+  if (params.some(param => !param.value)) {
+    setMessage({
+      type: MessageType.Error,
+      text: 'At least one parameter has an empty value'
+    });
+    return;
+  }
+  onSend();
+  resetParamValues();
+};
