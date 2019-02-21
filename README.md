@@ -1,3 +1,7 @@
+A sample .wasm file can be found in the data folder. 
+The app should work on all modern browsers but Chrome is recommended.
+
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts

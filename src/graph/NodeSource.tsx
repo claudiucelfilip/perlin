@@ -1,22 +1,29 @@
 import { GraphStore } from "../store/GraphStore";
-import { random, noRepeatRandom } from "../utils";
+import { random, uniqueRandom } from "../utils";
 import { Node } from './Node';
 
 export class NodeSource {
-  initialNodes = 200;
-  graphWidth = 4;
-  interval: number;
+  private initialNodes = 130;
+  private graphWidth = 4;
+  private initAlphaSourceTimeout: number;
 
-  constructor(private store: GraphStore) {
-    this.createInitialNodes();
-    this.initAlphaSource();
+  constructor(private store: GraphStore) {}
+
+  public delayedInit(duration: number) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        this.createInitialNodes();
+        this.initAlphaSource();
+        resolve();
+      }, duration);
+    });
   }
 
-  generateRandomId() {
+  private generateRandomId() {
     return (new Date()).getTime() + random(0, 100);
   }
 
-  addNode(newNode: Node) {
+  private addNode(newNode: Node) {
     let nodes = this.store.nodes;
     let nodesLen = nodes.length;
     if (!nodesLen) {
@@ -25,7 +32,7 @@ export class NodeSource {
     }
 
     let randomIndex: number;
-    let random = noRepeatRandom(0, nodesLen);
+    let random = uniqueRandom(0, nodesLen);
     while ((randomIndex = random()) !== null) {
       let children = nodes[randomIndex].children;
       if (children.length < this.graphWidth && children.indexOf(newNode) === -1) {
@@ -33,22 +40,21 @@ export class NodeSource {
 
         if (!this.store.isValid()) {
           nodes[randomIndex].children.pop();
-        } else {
-          this.store.root = { ...this.store.root };
         }
       }
     }
+    this.store.root = { ...this.store.root };
   }
 
-  createInitialNodes() {
+  private createInitialNodes() {
     let counter = 0;
     while (counter++ < this.initialNodes) {
       this.addNode(new Node(this.generateRandomId()));
     }
   }
 
-  initAlphaSource() {
-    this.interval = setTimeout(() => {
+  private initAlphaSource() {
+    this.initAlphaSourceTimeout = setTimeout(() => {
       let nodesAdded = random(2, 4);
       let count = 0;
       const nodesLen = this.store.nodes.length;
@@ -64,7 +70,7 @@ export class NodeSource {
     }, this.store.alphaTimeout);
   }
 
-  destroy() {
-    clearInterval(this.interval);
+  public destroy() {
+    clearInterval(this.initAlphaSourceTimeout);
   }
 }

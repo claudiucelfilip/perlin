@@ -1,6 +1,6 @@
 export const random = (from: number, to: number): number => Math.floor(Math.random() * to) + from;
 
-export const noRepeatRandom = (from: number, to: number) => {
+export const uniqueRandom = (from: number, to: number) => {
   const cachedResults: any = {};
 
   return () => {

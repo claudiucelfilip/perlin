@@ -4,9 +4,13 @@ import { ContractFunction } from './ContractFunction';
 import { Payload } from '../store/SmartContractStore';
 
 const Wrapper = styled.div`
-  display: flex;
-  .message-box--error {
-    color: red;
+  .function-select {
+    flex-grow: 1;
+    background-color: #fefbaf;
+  }
+
+  .label-text {
+    margin-bottom: 10px;
   }
 `;
 
@@ -20,15 +24,20 @@ export const FunctionSelector: React.SFC<FunctionSelectorProps> = (props: Functi
 
   return (
     <Wrapper>
-      {
-        <select onChange={(event) => setSelectedFunction(event.target.value)}>
-          {props.functions.map((fn: string, index: number) => <option key={fn} value={fn}>{fn}</option>)}
-        </select>
-      }
-      {props.functions
-        .filter((fn: string) => fn === selectedFunction)
-        .map((fn: string, index: number) =>
-          <ContractFunction onChange={props.onChange} onSend={props.onSend} key={fn + index} name={fn} />)}
+      <div className="module label-text">
+        Select a function and set its parameters
+      </div>
+      <div className="flat-control-row">
+        {
+          <select className="flat-control function-select" onChange={(event) => setSelectedFunction(event.target.value)}>
+            {props.functions.map((fn: string, index: number) => <option key={fn} value={fn}>{fn}</option>)}
+          </select>
+        }
+        {props.functions
+          .filter((fn: string) => fn === selectedFunction)
+          .map((fn: string, index: number) =>
+            <ContractFunction onChange={props.onChange} onSend={props.onSend} key={fn + index} name={fn} />)}
+      </div>
     </Wrapper>
   );
 };

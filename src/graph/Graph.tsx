@@ -20,9 +20,9 @@ export class Graph {
   private criticalRatio = 1.33;
   private context: CanvasRenderingContext2D;
   private disposer: Lambda;
-  private linkColor = '#666';
-  private nodeColor = 'steelblue';
-  private criticalNodeColor = 'red';
+  private linkColor = '#566270';
+  private nodeColor = '#539393';
+  private criticalNodeColor = '#e76244';
   private simulation: d3.Simulation<any, any>;
   private canvas: d3.Selection<HTMLCanvasElement, any, any, any>;
 
@@ -59,7 +59,8 @@ export class Graph {
 
     const mouseMove = (event: MouseEvent) => {
       this.store.popup.active = false;
-      const hoveredNode = this.getHoveredTarget(event.clientX - this.target.offsetLeft, event.clientY - this.target.offsetTop) || lastHovered;
+      const rect = this.target.getBoundingClientRect();
+      const hoveredNode = this.getHoveredTarget(event.clientX - rect.left, event.clientY - rect.top) || lastHovered;
       if (mousePressed) {
         const diffX = prevX - event.clientX;
         const diffY = prevY - event.clientY;

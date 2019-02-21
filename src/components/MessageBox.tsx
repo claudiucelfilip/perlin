@@ -9,6 +9,8 @@ export interface Message {
 
 interface MessageBoxProps {
   message?: Message;
+  onExpire?: () => void;
+  duration?: number;
 }
 export enum MessageType {
   Error = 'error',
@@ -17,14 +19,30 @@ export enum MessageType {
 };
 
 const Wrapper = styled.div`
+  .message-box {
+    color: rgba(255,255,255,0.8);
+    padding: 5px 10px;
+    font-size: 14px;
+    border-radius: 4px;
+  }
   .message-box--error {
-    color: red;
+    background: #bd1d50;
+  }
+  .message-box--success {
+    background: #739802;
   }
 `;
 
-
+let timeout: number;
 export const MessageBox: React.SFC<MessageBoxProps> = (props: MessageBoxProps) => {
-  const { message } = props;
+  const { message, onExpire, duration } = props;
+
+  useEffect(() => {
+    if (onExpire) {
+      timeout = setTimeout(onExpire, duration || 5000);
+    }
+    return () => clearTimeout(timeout);
+  }, [message]);
 
   return (
     <Wrapper>

@@ -7,17 +7,44 @@ import { observer } from 'mobx-react';
 import { NodeSource } from '../graph/NodeSource';
 
 const Wrapper = styled.div`
-  .canvas-container {
-    width: 100%;
-    height: 80vh;
-    border: solid 1px #aaa;
+  position: relative;
+  width: calc(100vw - 60px);
+  height: calc(100vh - 100px);
 
+  .canvas-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    
+    width: 100%;
+    height: 100%;
+    border: solid 1px #eee;
+    border-radius: 5px;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.15);
+
+    &.loading {
+      background: url('/assets/svgs/preloader.svg') center center no-repeat;
+      background-size: 30px auto;
+    }
     &.grabbed {
       cursor: grab;
     }
   }
+  .info {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    font-size: 12px;
+    background: rgba(255,255,255,0.95);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    padding: 15px;
+    border-radius: 5px;
+  }
   .range-input {
     margin-left: 5px;
+  }
+  .info-label {
+    font-weight: bold;
   }
 `;
 
@@ -28,9 +55,21 @@ export class TransactionGraph extends Component {
   nodeSource: NodeSource;
   store = new GraphStore();
 
+  state = {
+    loading: true
+  };
+
   componentDidMount() {
-    this.graph = new Graph(this.graphRef.current, this.store);
     this.nodeSource = new NodeSource(this.store);
+    this.graph = new Graph(this.graphRef.current, this.store);
+    
+
+    /*  
+    *   Function is computationally intensive so we need to have 
+    *   some UI rendered before starting this
+    */
+    this.nodeSource.delayedInit(1000)
+      .then(() => this.setState({ loading: false }));
   }
 
   componentWillUnmount() {
@@ -46,20 +85,19 @@ export class TransactionGraph extends Component {
     (this.graph && this.graph.updateSizes());
     return (
       <Wrapper>
-        <div className="row">
-          <h1 className="col">Transaction Graph</h1>
-          
+        <div className={'canvas-container ' + (this.state.loading ? 'loading': '')} ref={this.graphRef}></div>
+        <div className="info">
           <div>
-            Nodes: {this.store.nodes.length}<br/>
-            Root level: {this.store.root.level}<br/>
-            Max level: {this.store.maxLevel}<br/>
-            Latest critical at level: {this.store.latestCriticalLevel || 'null'}<br/>
-            /alpha timeout: {this.store.alphaTimeout}ms 
+            <span className="info-label">Nodes</span>: {this.store.nodes.length}<br />
+            <span className="info-label">Root level</span>: {this.store.root.level}<br />
+            <span className="info-label">Leaf level</span>: {this.store.maxLevel}<br />
+            <span className="info-label">Latest critical at level</span>: {this.store.latestCriticalLevel || 'none'}<br />
+            <span className="info-label">/alpha timeout</span>: {this.store.alphaTimeout}ms
             <input className="range-input" type="range" min="10" max="10000" step="10" onChange={this.changeAlphaTimeout} />
           </div>
-          
+
         </div>
-        <div className="canvas-container" ref={this.graphRef}></div>
+
         <NodePopup {...this.store.popup} />
       </Wrapper>
     );
