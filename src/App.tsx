@@ -1,26 +1,30 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+
+import { BrowserRouter as Router, Route, NavLink as Link, Redirect } from 'react-router-dom';
+import './App.scss';
+import { TransactionGraph } from './containers/TransactionGraph';
+import { SmartContract } from './containers/SmartContract';
 
 class App extends Component {
   render() {
     return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.tsx</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
+      <Router>
+        <main className="container">
+          <ul className="nav nav-tabs">
+            <li className="nav-item">
+              <Link activeClassName="active" to="/smart-contract">Smart Contract Scanner</Link>
+            </li>
+            <li className="nav-item">
+              <Link activeClassName="active" to="/graph">Transaction Graph</Link>
+            </li>
+          </ul>
+
+          <Route path="/smart-contract" component={SmartContract} />
+          <Route path="/graph" component={TransactionGraph} />
+          <Redirect exact from="/" to="/smart-contract" />
+          
+        </main>
+      </Router>
     );
   }
 }
