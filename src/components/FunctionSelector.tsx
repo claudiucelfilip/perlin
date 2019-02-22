@@ -19,6 +19,7 @@ interface FunctionSelectorProps {
   onSend: () => void;
   functions: string[];
 }
+
 export const FunctionSelector: React.SFC<FunctionSelectorProps> = (props: FunctionSelectorProps) => {
   const [selectedFunction, setSelectedFunction] = useState(props.functions[0]);
 
@@ -30,7 +31,7 @@ export const FunctionSelector: React.SFC<FunctionSelectorProps> = (props: Functi
       <div className="flat-control-row">
         {
           <select className="flat-control function-select" onChange={(event) => setSelectedFunction(event.target.value)}>
-            {props.functions.map((fn: string, index: number) => <option key={fn} value={fn}>{fn}</option>)}
+            {props.functions.map((fn: string, index: number) => <option key={fn + index} value={fn}>{fn}</option>)}
           </select>
         }
         {props.functions

@@ -1,5 +1,4 @@
-import React, { Component, ChangeEvent, useState } from 'react';
-import fp from 'lodash/fp';
+import React, { ChangeEvent, useState } from 'react';
 import { MessageBox, Message, MessageType } from './MessageBox';
 import styled from 'styled-components';
 
@@ -8,6 +7,9 @@ const Wrapper = styled.div`
 
   input[type="file"] {
     display: none;
+  }
+  .red-link {
+    color: #e44d27;
   }
 
   .file-upload-zone {
@@ -38,8 +40,6 @@ const Wrapper = styled.div`
       opacity: 0.2;
       transition: all 0.3s ease;
 
-      
-
       &--active {
         opacity: 1;
       }
@@ -64,46 +64,44 @@ export const FileUploader: React.SFC<FileUploaderProps> = (props: FileUploaderPr
     <Wrapper>
       <input type="file" ref={inputRef} onChange={onFileUpload(onUpload, setMessage)} />
       <div className={'file-upload-zone ' + (isDragging ? 'dragging' : '')}
-        onDragOver={onDragOverHandler(setIsDragging)}
-        onDragLeave={onDragLeaveHandler(setIsDragging)}
-        onDrop={onDropHandler(setIsDragging, onUpload, setMessage)}>
+        onDragOver={onDragOver(setIsDragging)}
+        onDragLeave={onDragLeave(setIsDragging)}
+        onDrop={onDrop(setIsDragging, onUpload, setMessage)}>
         <p>
           <i className={'file-icon far fa-file-alt ' + (file.name ? 'file-upload-zone__icon--active' : '')}></i>
-          {!file.name ? dropFileSection(inputRef) : removeFileSection(file.name, onReset)}
+          {!file.name ? renderDropFileSection(inputRef) : renderRemoveFileSection(file.name, onReset)}
         </p>
       </div>
       <MessageBox message={message} onExpire={() => setMessage(null)}></MessageBox>
-    </Wrapper >
+    </Wrapper>
   );
 };
 
-
-const dropFileSection = (inputRef: React.RefObject<HTMLInputElement>) => (
+const renderDropFileSection = (inputRef: React.RefObject<HTMLInputElement>) => (
   <React.Fragment>
     Drag .wasm file here or <a href="#" onClick={() => inputRef.current.click()}>Browse</a>
   </React.Fragment>
 );
 
-const removeFileSection = (fileName: string, onReset: () => void) => (
+const renderRemoveFileSection = (fileName: string, onReset: () => void) => (
   <React.Fragment>
-    {fileName} <a href="#" onClick={() => onReset()}>Remove</a>
+    {fileName} <a href="#" className="red-link" onClick={() => onReset()}>Remove</a>
   </React.Fragment>
 );
 
-
-const onDragLeaveHandler = (setIsDragging: React.Dispatch<boolean>) =>
+const onDragLeave = (setIsDragging: React.Dispatch<boolean>) =>
   (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragging(false);
   };
 
-const onDragOverHandler = (setIsDragging: React.Dispatch<boolean>) =>
+const onDragOver = (setIsDragging: React.Dispatch<boolean>) =>
   (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     setIsDragging(true);
   };
 
-const onDropHandler = (setIsDragging: React.Dispatch<boolean>, onUpload: React.Dispatch<File>, setMessage: React.Dispatch<Message>) =>
+const onDrop = (setIsDragging: React.Dispatch<boolean>, onUpload: React.Dispatch<File>, setMessage: React.Dispatch<Message>) =>
   (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     let files: File[] = [...event.dataTransfer.items]
