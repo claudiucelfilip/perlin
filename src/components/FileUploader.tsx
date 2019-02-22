@@ -101,7 +101,11 @@ const onDragOver = (setIsDragging: React.Dispatch<boolean>) =>
     setIsDragging(true);
   };
 
-const onDrop = (setIsDragging: React.Dispatch<boolean>, onUpload: React.Dispatch<File>, setMessage: React.Dispatch<Message>) =>
+const onDrop = (
+  setIsDragging: React.Dispatch<boolean>,
+  onUpload: (file: File) => void,
+  setMessage: React.Dispatch<Message>
+) =>
   (event: React.DragEvent<HTMLDivElement>) => {
     event.preventDefault();
     let files: File[] = [...event.dataTransfer.items]

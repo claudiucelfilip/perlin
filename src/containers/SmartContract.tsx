@@ -45,6 +45,7 @@ export class SmartContract extends Component {
   }
 
   onFileUpload = async (file: File) => {
+    this.setState({message: null});
     try {
       this.store.functions = await getFunctionsFromFile(file);
       this.store.file = file;
@@ -55,6 +56,7 @@ export class SmartContract extends Component {
           text: err.message
         }
       });
+      this.store.reset();
     }
   }
 
