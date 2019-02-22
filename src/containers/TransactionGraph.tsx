@@ -42,6 +42,7 @@ const Wrapper = styled.div`
   }
   .range-input {
     margin-left: 5px;
+    vertical-align: middle;
   }
   .info-label {
     font-weight: bold;
@@ -50,10 +51,10 @@ const Wrapper = styled.div`
 
 @observer
 export class TransactionGraph extends Component {
-  graphRef = React.createRef<HTMLDivElement>();
-  graph: Graph;
-  nodeSource: NodeSource;
-  store = new GraphStore();
+  private graphRef = React.createRef<HTMLDivElement>();
+  private graph: Graph;
+  private nodeSource: NodeSource;
+  private store = new GraphStore();
 
   state = {
     loading: true
@@ -62,13 +63,12 @@ export class TransactionGraph extends Component {
   componentDidMount() {
     this.nodeSource = new NodeSource(this.store);
     this.graph = new Graph(this.graphRef.current, this.store);
-    
 
     /*  
     *   Function is computationally intensive so we need to have 
-    *   some UI rendered before starting this
+    *   time prepare the UI rendered before starting node sourcing
     */
-    this.nodeSource.delayedInit(1000)
+    this.nodeSource.delayedInit(600)
       .then(() => this.setState({ loading: false }));
   }
 
@@ -85,17 +85,17 @@ export class TransactionGraph extends Component {
     (this.graph && this.graph.updateSizes());
     return (
       <Wrapper>
-        <div className={'canvas-container ' + (this.state.loading ? 'loading': '')} ref={this.graphRef}></div>
+        <div className={'canvas-container ' + (this.state.loading ? 'loading' : '')} ref={this.graphRef}></div>
         <div className="info">
           <div>
             <span className="info-label">Nodes</span>: {this.store.nodes.length}<br />
             <span className="info-label">Root level</span>: {this.store.root.level}<br />
             <span className="info-label">Leaf level</span>: {this.store.maxLevel}<br />
             <span className="info-label">Latest critical at level</span>: {this.store.latestCriticalLevel || 'none'}<br />
-            <span className="info-label">/alpha timeout</span>: {this.store.alphaTimeout}ms
+            <span className="info-label">/alpha timeout</span>: {this.store.alphaTimeout}ms <br />
+            <span className="info-label">/alpha delay</span>: 
             <input className="range-input" type="range" min="10" max="10000" step="10" onChange={this.changeAlphaTimeout} />
           </div>
-
         </div>
 
         <NodePopup {...this.store.popup} />

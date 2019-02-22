@@ -41,6 +41,7 @@ export const ContractFunction: React.SFC<ContractFunctionProps> = (props: Contra
         ))}
         <a className="flat-control flat-control--add" onClick={addParam}></a>
         <button className="flat-control flat-control--submit"
+          disabled={message && message.type === MessageType.Error}
           onClick={onSubmit(params, onSend, resetParamValues, setMessage)}>
           Send
       </button>
@@ -61,7 +62,7 @@ enum ParamTypes {
 class Param {
   isValid: boolean = true;
   constructor(public type: string = ParamTypes.String, public value: string = '') { }
-};
+}
 
 const processFunctionParams = (props: ContractFunctionProps, params: Param[]) => {
   const buffer = params
@@ -147,7 +148,7 @@ const validate = (param: Param, setMessage: React.Dispatch<Message>) => {
   }
 
   return param;
-}
+};
 
 const getParamType = (key: string) =>
   Object.keys(ParamTypes).find((paramKey: string) => paramKey === key);
@@ -196,13 +197,15 @@ const useParamsHook = (props: ContractFunctionProps) => {
   };
 
   const removeParam = (index: number) => () => {
+    setMessage(null);
     setParams(params.filter((_, i: number) => i !== index));
   };
 
   const resetParamValues = () => {
+    setMessage(null);
     setParams(params.map(param => ({ ...param, value: '' })));
   };
 
   return { message, setMessage, params, setParamValue, setParamType, addParam, removeParam, resetParamValues };
-}
+};
 

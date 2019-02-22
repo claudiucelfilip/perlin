@@ -34,6 +34,7 @@ export interface NodePopupProps {
   info?: any;
   active: boolean;
 }
+
 export const NodePopup: React.SFC<NodePopupProps> = (props) => {
   const { position, active } = props;
   const info = props.info || {};
@@ -45,5 +46,4 @@ export const NodePopup: React.SFC<NodePopupProps> = (props) => {
       </div>
     </Wrapper>
   )
-}
-
+};
